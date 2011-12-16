@@ -121,16 +121,16 @@ describe Vendorer do
     end
   end
 
-  describe '.folder' do
+  describe '.plugin' do
     it "can download via hash syntax" do
-      write 'Vendorfile', "folder 'vendor/plugins/parallel_tests', 'https://github.com/grosser/parallel_tests.git'"
+      write 'Vendorfile', "plugin 'vendor/plugins/parallel_tests', 'https://github.com/grosser/parallel_tests.git'"
       run
       ls('vendor/plugins').should == ["parallel_tests"]
       read('vendor/plugins/parallel_tests/Gemfile').should include('parallel')
     end
 
     it "reports errors when the Vendorfile is broken" do
-      write 'Vendorfile', "folder 'vendor/plugins/parallel_tests', 'https://blob'"
+      write 'Vendorfile', "plugin 'vendor/plugins/parallel_tests', 'https://blob'"
       output = run '', :raise => true
       # different errors on travis / local
       raise unless output.include?('Connection refused') or output.include?('resolve host')
@@ -138,17 +138,19 @@ describe Vendorer do
 
     context "with a fast,local repository" do
       before do
-        write 'Vendorfile', "folder 'its_recursive', '../../.git'"
+        write 'Vendorfile', "plugin 'its_recursive', '../../.git'"
         run
       end
 
       it "can download" do
-        ls('').should == ["its_recursive", "Vendorfile"]
+        ls('').should include "its_recursive"
+        ls('').should include "Vendorfile"
         read('its_recursive/Gemfile').should include('rake')
       end
 
       it "does not keep .git folder so everything can be checked in" do
-        ls('its_recursive/.git').first.should include('cannot access')
+        #ls('its_recursive/.git').first.should include('cannot access')
+        ls('its_recursive/.git').first.should include('No such file or directory')
       end
 
       it "does not update an existing folder" do
@@ -157,7 +159,7 @@ describe Vendorer do
         read('its_recursive/Gemfile').should == 'Foo'
       end
 
-      it "can update a folder" do
+      it "can update a plugin" do
         write('its_recursive/Gemfile', 'Foo')
         run 'update'
         read('its_recursive/Gemfile').should include('rake')
@@ -165,8 +167,8 @@ describe Vendorer do
 
       it "can update a single file" do
         write 'Vendorfile', "
-          folder 'its_recursive', '../../.git'
-          folder 'its_really_recursive', '../../.git'
+          plugin 'its_recursive', '../../.git'
+          plugin 'its_really_recursive', '../../.git'
         "
         run
         write('its_recursive/Gemfile', 'Foo')
@@ -179,19 +181,19 @@ describe Vendorer do
 
     describe "git options" do
       it "can checkout by :ref" do
-        write 'Vendorfile', "folder 'its_recursive', '../../.git', :ref => 'b1e6460'"
+        write 'Vendorfile', "plugin 'its_recursive', '../../.git', :ref => 'b1e6460'"
         run
         read('its_recursive/Readme.md').should include('CODE EXAMPLE')
       end
 
       it "can checkout by :branch" do
-        write 'Vendorfile', "folder 'its_recursive', '../../.git', :branch => 'b1e6460'"
+        write 'Vendorfile', "plugin 'its_recursive', '../../.git', :branch => 'b1e6460'"
         run
         read('its_recursive/Readme.md').should include('CODE EXAMPLE')
       end
 
       it "can checkout by :tag" do
-        write 'Vendorfile', "folder 'its_recursive', '../../.git', :tag => 'b1e6460'"
+        write 'Vendorfile', "plugin 'its_recursive', '../../.git', :tag => 'b1e6460'"
         run
         read('its_recursive/Readme.md').should include('CODE EXAMPLE')
       end
@@ -199,7 +201,7 @@ describe Vendorer do
 
     context "with a passed block" do
       before do
-        write 'Vendorfile', "folder('its_recursive', '../../.git'){|path| puts 'THE PATH IS ' + path }"
+        write 'Vendorfile', "plugin('its_recursive', '../../.git'){|path| puts 'THE PATH IS ' + path }"
         @output = 'THE PATH IS its_recursive'
       end
 

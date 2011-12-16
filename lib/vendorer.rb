@@ -14,8 +14,9 @@ class Vendorer
       yield path if block_given?
     end
   end
+  alias_method :asset,:file
 
-  def folder(path, url, options={})
+  def plugin(path, url, options={})
     update_or_not path do
       run "mkdir -p #{File.dirname(path)}"
       run "git clone '#{url}' #{path}"
