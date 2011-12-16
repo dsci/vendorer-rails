@@ -137,7 +137,7 @@ describe Vendorer do
     end
 
     it "reports errors when the Vendorfile is broken" do
-      write 'Vendorfile', "plugin 'vendor/plugins/parallel_tests', ':source => https://blob'"
+      write 'Vendorfile', "plugin 'vendor/plugins/parallel_tests', :source => 'https://blob'"
       output = run '', :raise => true
       # different errors on travis / local
       raise unless output.include?('Connection refused') or output.include?('resolve host')
