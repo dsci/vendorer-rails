@@ -16,7 +16,10 @@ class Vendorer
   end
   alias_method :asset,:file
 
-  def plugin(path, url, options={})
+  def plugin(path, options={})
+    raise "Missing source!" unless options.has_key?(:source)
+    url = options[:source]
+    options.delete(:source)
     update_or_not path do
       run "mkdir -p #{File.dirname(path)}"
       run "git clone '#{url}' #{path}"

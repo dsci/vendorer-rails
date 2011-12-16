@@ -122,15 +122,22 @@ describe Vendorer do
   end
 
   describe '.plugin' do
+    
+    it "raises an error if source is missing" do
+      write 'Vendorfile', "plugin 'vendor/plugins/parallel_tests'"
+      result = run '', :raise => true
+      result.should include("Missing source!") 
+    end
+    
     it "can download via hash syntax" do
-      write 'Vendorfile', "plugin 'vendor/plugins/parallel_tests', 'https://github.com/grosser/parallel_tests.git'"
+      write 'Vendorfile', "plugin 'vendor/plugins/parallel_tests', :source => 'https://github.com/grosser/parallel_tests.git'"
       run
       ls('vendor/plugins').should == ["parallel_tests"]
       read('vendor/plugins/parallel_tests/Gemfile').should include('parallel')
     end
 
     it "reports errors when the Vendorfile is broken" do
-      write 'Vendorfile', "plugin 'vendor/plugins/parallel_tests', 'https://blob'"
+      write 'Vendorfile', "plugin 'vendor/plugins/parallel_tests', ':source => https://blob'"
       output = run '', :raise => true
       # different errors on travis / local
       raise unless output.include?('Connection refused') or output.include?('resolve host')
@@ -138,7 +145,7 @@ describe Vendorer do
 
     context "with a fast,local repository" do
       before do
-        write 'Vendorfile', "plugin 'its_recursive', '../../.git'"
+        write 'Vendorfile', "plugin 'its_recursive', :source => '../../.git'"
         run
       end
 
@@ -167,8 +174,8 @@ describe Vendorer do
 
       it "can update a single file" do
         write 'Vendorfile', "
-          plugin 'its_recursive', '../../.git'
-          plugin 'its_really_recursive', '../../.git'
+          plugin 'its_recursive', :source => '../../.git'
+          plugin 'its_really_recursive', :source => '../../.git'
         "
         run
         write('its_recursive/Gemfile', 'Foo')
@@ -181,19 +188,19 @@ describe Vendorer do
 
     describe "git options" do
       it "can checkout by :ref" do
-        write 'Vendorfile', "plugin 'its_recursive', '../../.git', :ref => 'b1e6460'"
+        write 'Vendorfile', "plugin 'its_recursive', :source => '../../.git', :ref => 'b1e6460'"
         run
         read('its_recursive/Readme.md').should include('CODE EXAMPLE')
       end
 
       it "can checkout by :branch" do
-        write 'Vendorfile', "plugin 'its_recursive', '../../.git', :branch => 'b1e6460'"
+        write 'Vendorfile', "plugin 'its_recursive', :source => '../../.git', :branch => 'b1e6460'"
         run
         read('its_recursive/Readme.md').should include('CODE EXAMPLE')
       end
 
       it "can checkout by :tag" do
-        write 'Vendorfile', "plugin 'its_recursive', '../../.git', :tag => 'b1e6460'"
+        write 'Vendorfile', "plugin 'its_recursive', :source => '../../.git', :tag => 'b1e6460'"
         run
         read('its_recursive/Readme.md').should include('CODE EXAMPLE')
       end
@@ -201,7 +208,7 @@ describe Vendorer do
 
     context "with a passed block" do
       before do
-        write 'Vendorfile', "plugin('its_recursive', '../../.git'){|path| puts 'THE PATH IS ' + path }"
+        write 'Vendorfile', "plugin('its_recursive', :source => '../../.git'){|path| puts 'THE PATH IS ' + path }"
         @output = 'THE PATH IS its_recursive'
       end
 
