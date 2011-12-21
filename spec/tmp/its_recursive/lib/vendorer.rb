@@ -1,5 +1,3 @@
-require 'vendorer/projects'
-
 class Vendorer
   def initialize(options)
     @options = options
@@ -7,14 +5,7 @@ class Vendorer
   end
 
   private
-  
-  def project(type)
-    project = case type.to_s
-      when "rails"  then self.class.send(:include, Projects::Rails)     
-      #when "ruby"   then Project::Ruby
-    end
-  end
-  
+
   def file(path, url)
     update_or_not path do
       run "mkdir -p #{File.dirname(path)}"
@@ -23,9 +14,12 @@ class Vendorer
       yield path if block_given?
     end
   end
-  #alias_method :asset,:file
+  alias_method :asset,:file
 
-  def folder(path, url, options={})
+  def plugin(path, options={})
+    raise "Missing source!" unless options.has_key?(:source)
+    url = options[:source]
+    options.delete(:source)
     update_or_not path do
       run "mkdir -p #{File.dirname(path)}"
       run "git clone '#{url}' #{path}"
