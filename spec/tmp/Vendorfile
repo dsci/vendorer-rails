@@ -1,1 +1,0 @@
-folder('its_recursive', '../../.git'){|path| puts 'THE PATH IS ' + path }
