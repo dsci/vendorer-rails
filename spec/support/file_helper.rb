@@ -17,7 +17,6 @@ module FileHelper
 
   def run(args='', options={})
     out = `cd spec/tmp && bundle exec ../../bin/vendorer #{args} 2>&1`
-    p out
     raise out if $?.success? == !!options[:raise]
     out
   end

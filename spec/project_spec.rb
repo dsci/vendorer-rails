@@ -2,6 +2,15 @@ require 'spec_helper'
 
 describe Vendorer do
   
+  before do
+    `rm -rf spec/tmp`
+    `mkdir spec/tmp`
+  end
+
+  after do
+    `rm -rf spec/tmp`
+  end
+  
   describe 'file or asset' do
     
     context "with working Vendorfile" do
